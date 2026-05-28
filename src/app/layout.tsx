@@ -12,15 +12,14 @@ import { Toaster } from "sonner";
 export const metadata: Metadata = {
   title: {
     // 'default': the title when no page overrides it
-    default: "BudgetApp — Track Your Money",
+    default: "Budgefy",
 
     // 'template': when a page sets its own title,
     // it becomes: 'PageTitle | BudgetApp'.
     // %s is replaced with the page's title.
-    template: "%s | BudgetApp",
+    template: "%s | Budgefy",
   },
-  description:
-    "A simple budget tracker. Monitor income, expenses, budgets, and debts.",
+  description: "Finances made easy.",
 };
 
 // RootLayout receives 'children' — whatever page is currently active.
