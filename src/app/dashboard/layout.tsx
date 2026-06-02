@@ -21,9 +21,12 @@ export default async function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
+
     // auth() is the SERVER-SIDE session check from NextAuth.
     // It reads the JWT cookie from the request headers.
     const session = await auth();
+
+
 
     // If not logged in, redirect to login.
     // redirect() is a Next.js function that immediately stops
@@ -41,9 +44,6 @@ export default async function DashboardLayout({
             {/* flex-1: take all remaining width after the sidebar */}
             {/* flex-col: stack header and content vertically */}
             <div className='flex-1 flex flex-col min-h-screen overflow-hidden'>
-
-                {/* TOP: Header bar */}
-                <DashboardNavBar user={session.user} />
 
                 {/* CONTENT: The actual page */}
                 {/* overflow-y-auto: scroll this area when content is tall */}
