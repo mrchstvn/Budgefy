@@ -1,113 +1,181 @@
-/* src/app/globals.css */
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-/* ── TAILWIND IMPORTS ───────────────────────────────────────── */
-/* These three lines are REQUIRED for Tailwind to work.          */
-/* base:       resets browser default styles (padding, margins)  */
-/* components: Tailwind's built-in component styles              */
-/* utilities:  ALL the utility classes (text-red-500, p-4, etc) */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@custom-variant dark (&:is(.dark *));
 
-/* ── CSS CUSTOM PROPERTIES (VARIABLES) ─────────────────────── */
-/* :root selects the top-level element (the whole page).         */
-/* Variables defined here are available EVERYWHERE in CSS.       */
-/* Syntax: --variable-name: value;                               */
-/* Usage:  color: var(--variable-name);                          */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
 :root {
-  /* Page background and main text color */
-  --background: #ffffff;
-  --foreground: #0f172a;
-
-  /* Card (white boxes on the page) */
-  --card: #f8fafc;
-  --card-foreground: #0f172a;
-
-  /* Primary = main buttons, links, highlights */
-  /* primary-foreground = text color ON the primary background */
-  --primary: #1e293b;
-  --primary-foreground: #f8fafc;
-
-  /* Secondary = less prominent buttons */
-  --secondary: #f1f5f9;
-  --secondary-foreground: #1e293b;
-
-  /* Muted = placeholder text, disabled states, subtle labels */
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-
-  /* Accent = hover states, focused elements */
-  --accent: #f1f5f9;
-  --accent-foreground: #1e293b;
-
-  /* Destructive = delete buttons, error states */
-  --destructive: #ef4444;
-  --destructive-foreground: #f8fafc;
-
-  /* UI borders and form inputs */
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #94a3b8; /* Focus ring (the glow around focused inputs) */
-
-  /* Border radius (how rounded the corners are) */
-  --radius: 0.5rem; /* 8px */
-
-  /* App-specific colors */
-  --income-color: #22c55e; /* Green for money coming in */
-  --expense-color: #ef4444; /* Red for money going out   */
+  --card: oklch(99.73% 0.013 106.79);
+  --card-foreground: oklch(32.57% 0.0596 177.63);
+  --popover: oklch(99.73% 0.013 106.79);
+  --popover-foreground: oklch(32.57% 0.0596 177.63);
+  --primary: oklch(32.57% 0.0596 177.63);
+  --primary-foreground: oklch(99.73% 0.013 106.79);
+  --secondary: oklch(99.73% 0.013 106.79);
+  --secondary-foreground: oklch(32.57% 0.0596 177.63);
+  --muted: oklch(96% 0.01 120);
+  --muted-foreground: oklch(50% 0.02 171);
+  --accent: oklch(93% 0.02 171);
+  --accent-foreground: oklch(24% 0.07 171);
+  --destructive: oklch(49.34% 0.2024 29.23);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(32.57% 0.0596 177.63);
+  --chart-1: oklch(62% 0.2116 260.6);
+  /* #307DFE — income blue (brighter for dark bg) */
+  --chart-2: oklch(62% 0.2024 29.23);
+  /* #E64334 — expense red (brighter for dark bg) */
+  --chart-3: oklch(65% 0.05 177.63);
+  /* #6E998E — category green 1 */
+  --chart-4: oklch(52% 0.04 177.63);
+  /* #4F7068 — category green 2 */
+  --chart-5: oklch(40% 0.035 177.63);
+  /* #324E47 — category green 3 */
+  --radius: 0.625rem;
+  --sidebar: oklch(99.73% 0.013 106.79);
+  --sidebar-foreground: oklch(32.57% 0.0596 177.63);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+  --background: oklch(99.84% 0.0078 106.8);
+  --foreground: oklch(32.57% 0.0596 177.63);
 }
 
-/* ── BASE ELEMENT STYLES ──────────────────────────────────── */
-/* Apply to ALL elements using the * selector */
-* {
-  /* border-box: padding and border are INCLUDED in the width.  */
-  /* Without this: a 100px box with 10px padding = 120px total. */
-  /* With this:    a 100px box with 10px padding = 100px total. */
-  box-sizing: border-box;
+.dark {
+  --background: oklch(12% 0.035 177.63);
+  /* #000905 — very deep green-black page bg */
+  --foreground: oklch(92% 0.013 106.79);
+  /* #E5E5DB — warm off-white text */
+
+  --card: oklch(18% 0.04 177.63);
+  /* #001711 — dark green card surface */
+  --card-foreground: oklch(92% 0.013 106.79);
+  /* #E5E5DB — text inside cards */
+
+  --popover: oklch(16% 0.04 177.63);
+  /* #00120D — dropdown bg, slightly darker than card */
+  --popover-foreground: oklch(92% 0.013 106.79);
+  /* #E5E5DB — text inside dropdowns */
+
+  --primary: oklch(76% 0.0596 177.63);
+  /* #88BDB0 — light mint green (readable on dark bg) */
+  --primary-foreground: oklch(12% 0.04 177.63);
+  /* #000905 — dark text on mint green button */
+
+  --secondary: oklch(22% 0.03 177.63);
+  /* #081F1A — subtle dark surface for secondary buttons */
+  --secondary-foreground: oklch(88% 0.013 106.79);
+  /* #D8D8CE — text on secondary button */
+
+  --muted: oklch(22% 0.02 177.63);
+  /* #101D1A — disabled/skeleton areas */
+  --muted-foreground: oklch(60% 0.02 177.63);
+  /* #74847F — hint text, timestamps, labels */
+
+  --accent: oklch(26% 0.04 177.63);
+  /* #092A23 — hover highlight on list rows/nav items */
+  --accent-foreground: oklch(90% 0.013 106.79);
+  /* #DEDED5 — text on hovered rows */
+
+  --destructive: oklch(58% 0.2024 29.23);
+  /* #D83327 — brighter red (legible on dark bg) */
+
+  --border: oklch(28% 0.025 177.63);
+  /* #1B2D28 — card edges, dividers */
+  --input: oklch(24% 0.025 177.63);
+  /* #11231F — input field border */
+  --ring: oklch(76% 0.0596 177.63);
+  /* #88BDB0 — focus ring, matches dark primary */
+
+  --chart-1: oklch(62% 0.2116 260.6);
+  /* #307DFE — income blue (brighter for dark bg) */
+  --chart-2: oklch(62% 0.2024 29.23);
+  /* #E64334 — expense red (brighter for dark bg) */
+  --chart-3: oklch(65% 0.05 177.63);
+  /* #6E998E — category green 1 */
+  --chart-4: oklch(52% 0.04 177.63);
+  /* #4F7068 — category green 2 */
+  --chart-5: oklch(40% 0.035 177.63);
+  /* #324E47 — category green 3 */
+
+  --radius: 0.625rem;
+  /* unchanged */
+
+  --sidebar: oklch(14% 0.045 177.63);
+  /* #000E08 — navbar bg, darkest surface */
+  --sidebar-foreground: oklch(92% 0.013 106.79);
+  /* #E5E5DB — navbar text */
+  --sidebar-primary: oklch(76% 0.0596 177.63);
+  /* #88BDB0 — active nav item bg */
+  --sidebar-primary-foreground: oklch(12% 0.04 177.63);
+  /* #000905 — text on active nav item */
+  --sidebar-accent: oklch(24% 0.035 177.63);
+  /* #09241F — hovered nav item */
+  --sidebar-accent-foreground: oklch(88% 0.013 106.79);
+  /* #D8D8CE — text on hovered nav item */
+  --sidebar-border: oklch(26% 0.025 177.63);
+  /* #162823 — line between sidebar and content */
+  --sidebar-ring: oklch(70% 0.05 177.63);
+  /* #7DA99E — focus ring inside sidebar */
 }
 
-body {
-  background-color: var(--background); /* Use the CSS variable */
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  /* -apple-system: San Francisco on Apple devices               */
-  /* BlinkMacSystemFont: San Francisco on Chrome for Mac         */
-  /* 'Segoe UI': the Windows system font                         */
-  /* sans-serif: fallback for any other system                   */
-  -webkit-font-smoothing: antialiased; /* Smoother fonts on Mac */
-}
-
-/* ── CUSTOM UTILITY CLASSES ──────────────────────────────── */
-/* @layer utilities: adds these to Tailwind's utilities layer. */
-/* This means they work with Tailwind's responsive/hover prefixes. */
-@layer utilities {
-  /* Use class='text-income' to make text green (for income amounts) */
-  .text-income {
-    color: var(--income-color);
-  }
-  /* Use class='text-expense' to make text red (for expense amounts) */
-  .text-expense {
-    color: var(--expense-color);
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
 
-  /* Fade-in animation for page content */
-  /* Add class='animate-fade-in' to make an element fade in on load */
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-in-out;
+  body {
+    @apply bg-background text-foreground;
   }
 
-  /* Define the keyframes for the fadeIn animation */
-  /* 'from' = starting state, 'to' = ending state  */
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(8px);
-    }
-    /* opacity: 0 = invisible. translateY(8px) = 8px below final position */
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    /* opacity: 1 = fully visible. translateY(0) = in final position      */
+  html {
+    @apply font-sans;
   }
 }
