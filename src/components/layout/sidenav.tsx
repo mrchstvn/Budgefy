@@ -65,7 +65,7 @@ export function DashboardSideNav({ user }: SidebarProps) {
         // sticky top-0: sidebar stays in place as the right side scrolls
         // h-screen: full viewport height
         // flex-col: stack items vertically
-        <div className="w-full">
+        <div className="w-full h-15 border flex flex-row md:flex-col md:h-full md:rounded-2xl md:mx-2 md:cols-span-2 bg-[#FFFFF5]">
 
             {/* App brand / logo at the top */}
             <Logo />

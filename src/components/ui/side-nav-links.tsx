@@ -41,6 +41,7 @@ export default function SideNavLinks() {
                                 alt={link.label}
                                 width={40}
                                 height={40}
+                                loading="eager"
                             />
 
                             <p className="hidden md:block md:text-sm lg:text-md">{link.label}</p>

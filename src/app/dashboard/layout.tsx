@@ -35,10 +35,13 @@ export default async function DashboardLayout({
 
     return (
         // Outer container: full screen height, horizontal layout (flex row)
-        <div className='min-h-screen bg-gray-50 flex'>
+        <div className="flex flex-col-reverse h-screen overflow-hidden md:grid md:grid-cols-8 md:gap-1 md:flex-col lg:grid lg:grid-cols-12 lg:gap-2 lg:flex-col">
 
             {/* LEFT: Sidebar */}
-            <DashboardSideNav user={session.user} />
+
+            <div className="w-full md:col-span-1 lg:col-span-2">
+                <DashboardSideNav user={session.user} />
+            </div>
 
             {/* RIGHT: Main content area */}
             {/* flex-1: take all remaining width after the sidebar */}
