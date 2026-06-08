@@ -1,7 +1,5 @@
 "use client";
 
-import GoogleIcon from "@/components/icons/googleicon";
-import GithubIcon from "@/components/icons/githubicon";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,13 +7,18 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { registerSchema, type RegisterInput } from "@/lib/validations";
+
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+import GoogleIcon from "@/components/icons/googleicon";
+import GithubIcon from "@/components/icons/githubicon";
+
 export default function RegisterPage() {
   const router = useRouter();
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const {
@@ -26,139 +29,207 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = async (data: RegisterInput) => {
+  async function onSubmit(data: RegisterInput) {
     setIsLoading(true);
-    setError(null);
 
-    // Call our register API route we built in Step 9
-    const res = await fetch("/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
+    try {
+      // Call our register API route we built in Step 9
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
-    const result = await res.json();
+      const result = await res.json();
 
-    if (!res.ok) {
-      // Handle both string errors and field-specific errors
-      setError(
-        typeof result.error === "string"
-          ? result.error
-          : "Registration failed. Please check your details.",
-      );
+      if (!res.ok) {
+        // Handle both string errors and field-specific errors
+        console.log(
+          typeof result.error === "string"
+            ? result.error
+            : "Registration failed. Please check your details.",
+        );
+        toast.error(
+          typeof result.error === "string"
+            ? result.error
+            : "Registration failed. Please check your details.",
+        );
+        setIsLoading(false);
+        return;
+      }
+
+      toast.success("Account created successfully.");
+
+      // // Registration successful — automatically sign them in so they don't
+      // // have to log in manually right after creating an account
+      // await signIn("credentials", {
+      //   email: data.email,
+      //   password: data.password,
+      //   redirect: false,
+      // });
+
+      router.push("/login");
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.");
       setIsLoading(false);
       return;
+    } finally {
+      setIsLoading(false);
     }
+  }
 
-    // Registration successful — automatically sign them in so they don't
-    // have to log in manually right after creating an account
-    await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
+  // Handler for Google sign-in button
+  async function handleGoogleSignIn() {
+    setIsLoading(true);
+    // signIn("google") triggers the Google OAuth flow.
+    // callbackUrl = where to go after Google confirms the identity.
+    await signIn("google", { callbackUrl: "/dashboard" });
+  }
 
-    router.push("/dashboard");
-    router.refresh();
-  };
+  // Handler for Github sign-in button
+  async function handleGithubSignIn() {
+    setIsLoading(true);
+    // signIn("github") triggers the Github OAuth flow.
+    // callbackUrl = where to go after Github confirms the identity.
+    await signIn("github", { callbackUrl: "/dashboard" });
+  }
 
   return (
-    <main className="max-h-screen bg-card py-15 ">
-      <div className="flex flex-col w-full max-w-sm border gap-2 p-5 bg-sidebar text-sidebar-foreground rounded-md mx-auto  overflow-hidden">
-        <h1 className="text-center text-3xl font-bold">SIGNUP</h1>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4 flex flex-col gap-2 noValidate "
-        >
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-md">
-              Full name
-            </Label>
-            <Input
-              id="name"
-              placeholder="Juan dela Cruz"
-              {...register("name")}
-              disabled={isLoading}
-            />
-            {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-md">
-              Email
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              {...register("email")}
-              disabled={isLoading}
-            />
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-md">
-              Password
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="••••••••"
-              {...register("password")}
-              disabled={isLoading}
-            />
-            {errors.password && (
-              <p className="text-xs text-destructive">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+      <h2 className="text-2xl font-semibold text-gray-900 mb-1">
+        Create account
+      </h2>
+      <p className="text-gray-500 text-sm mb-6">
+        Start tracking your money today
+      </p>
 
-          <Button
-            type="submit"
-            className="w-full cursor-pointer min-h-10 text-lg   "
-            disabled={isLoading}
-          >
-            {isLoading ? "Creating account..." : "Create account"}
-          </Button>
-        </form>
-        <hr className="my-7 mx-10" />
-        <div className="flex flex-col gap-1">
-          <p className="text-center text-md">Or Signup using</p>
-          <div className="flex gap-1 justify-center">
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-              className=" cursor-pointer p-2 flex items-center justify-center overflow-hidden"
-            >
-              <span className="w-full h-full flex items-center justify-center">
-                <GoogleIcon className="size-12" />
-              </span>
-            </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
-              className="cursor-pointer p-2 flex items-center justify-center overflow-hidden"
-            >
-              <span className="w-full h-full flex items-center justify-center">
-                <GithubIcon className="size-12" />
-              </span>
-            </Button>
-          </div>
+      {/* ── Google Sign-In Button ── */}
+      <button
+        onClick={handleGoogleSignIn}
+        disabled={isLoading}
+        className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 mb-4 hover:cursor-pointer "
+      >
+        {/* Google's logo */}
+        <GoogleIcon className="size-6" />
+        Continue with Google
+      </button>
+
+      {/* ── Github Sign-In Button ── */}
+      <button
+        onClick={handleGithubSignIn}
+        disabled={isLoading}
+        className="w-full flex items-center justify-center gap-3 border border-gray-300 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50 mb-4 hover:cursor-pointer "
+      >
+        {/* Github's logo */}
+        <GithubIcon className="size-6" />
+        Continue with Github
+      </button>
+
+      {/* Divider line with "or" text */}
+      <div className="relative my-4">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200" />
         </div>
-        <p className="text-center text-md mt-5">
-          Already have an account?{" "}
-          <Link href="/login" className="text-chart-1 hover:underline">
-            Login
-          </Link>
-        </p>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-white px-2 text-gray-400">or</span>
+        </div>
       </div>
-    </main>
+
+      {/* ── Email/Password Form ── */}
+      {/* handleSubmit wraps our onSubmit — it runs Zod validation first */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Name Field */}
+        <div>
+          <Label className="block text-sm font-medium text-gray-700 mb-1">
+            Full name
+          </Label>
+          {/* register("name") connects this input to React Hook Form */}
+          <Input
+            {...register("name")}
+            type="text"
+            placeholder="Juan dela Cruz"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+          />
+          {/* Show error message if validation fails */}
+          {errors.name && (
+            <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>
+          )}
+        </div>
+
+        {/* Email Field */}
+        <div>
+          <Label className="block text-sm font-medium text-gray-700 mb-1">
+            Email address
+          </Label>
+          <Input
+            {...register("email")}
+            type="email"
+            placeholder="juan@email.com"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+          />
+          {errors.email && (
+            <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+          )}
+        </div>
+
+        {/* Password Field */}
+        <div>
+          <Label className="block text-sm font-medium text-gray-700 mb-1">
+            Password
+          </Label>
+          <Input
+            {...register("password")}
+            type="password"
+            placeholder="Min. 8 characters with a number"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+          />
+          {errors.password && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        {/* Confirm Password Field */}
+        <div>
+          <Label className="block text-sm font-medium text-gray-700 mb-1">
+            Confirm password
+          </Label>
+          <Input
+            {...register("confirmPassword")}
+            type="password"
+            placeholder="Repeat your password"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+          />
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-xs mt-1">
+              {errors.confirmPassword.message}
+            </p>
+          )}
+        </div>
+
+        {/* Submit Button */}
+        <Button
+          type="submit"
+          disabled={isLoading}
+          className="w-full h-10 hover:cursor-pointer "
+        >
+          {/* Show different text while loading */}
+          {isLoading ? "Creating account..." : "Create account"}
+        </Button>
+      </form>
+
+      {/* Link to login page */}
+      <p className="text-center text-sm text-gray-500 mt-6">
+        Already have an account?{" "}
+        <Link
+          href="/login"
+          className="text-brand-700 font-medium hover:underline"
+        >
+          Sign in
+        </Link>
+      </p>
+    </div>
   );
 }
 {

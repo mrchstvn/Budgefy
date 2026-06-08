@@ -124,7 +124,7 @@ export default function LoginPage() {
           <div className="flex gap-1 justify-center">
             <Button
               variant="ghost"
-              size="lg"
+              size="xl"
               onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
               className="cursor-pointer px-0 m-0 flex items-center justify-center"
             >
@@ -133,7 +133,7 @@ export default function LoginPage() {
 
             <Button
               variant="ghost"
-              size="lg"
+              size="xl"
               onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
               className="cursor-pointer p-2 flex items-center justify-center overflow-hidden"
             >

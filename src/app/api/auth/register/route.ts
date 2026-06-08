@@ -8,35 +8,23 @@ import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { registerSchema } from "@/lib/validations";
 import { registerRatelimit, getClientIp } from "@/lib/rate-limit";
+import { toast } from "sonner";
 
 // Exporting a function named 'POST' makes this handle HTTP POST requests.
 // Next.js automatically routes POST /api/auth/register here.
 // No router.post() needed — the export name IS the routing.
 export async function POST(request: Request) {
   try {
-    // ── STEP 1: RATE LIMIT CHECK ──────────────────────────────
-    const ip = getClientIp(request);
-    const {
-      success: rateLimitOk,
-      limit,
-      remaining,
-    } = await registerRatelimit.limit(ip);
+    // ── REGISTER STEP 2: Rate Limit Check ──────────────────
+    // Get the IP address of whoever is sending this request.
+    // If they've sent too many requests recently, block them.
+    const ip = request.headers.get("x-forwarded-for") ?? "anonymous";
+    const { success: withinLimit } = await registerRatelimit.limit(ip);
 
-    if (!rateLimitOk) {
+    if (!withinLimit) {
       return NextResponse.json(
-        {
-          error:
-            "Too many registration attempts. Please wait before trying again.",
-        },
-        {
-          status: 429,
-          // HTTP 429 = 'Too Many Requests' — a standard status code.
-          headers: {
-            // Send limit info in headers so clients can see their status.
-            "X-RateLimit-Limit": limit.toString(),
-            "X-RateLimit-Remaining": remaining.toString(),
-          },
-        },
+        { error: "Too many requests. Please wait before trying again." },
+        { status: 429 }, // 429 = "Too Many Requests" HTTP code
       );
     }
 
@@ -91,8 +79,8 @@ export async function POST(request: Request) {
       .insert(users)
       .values({
         name,
-        email,
-        passwordHash,
+        email: email.toLowerCase(), // ensure email is stored in lowercase
+        password: passwordHash,
         currency: "PHP",
         timezone: "Asia/Manila",
       })
