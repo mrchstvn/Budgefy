@@ -224,7 +224,7 @@ export default function RegisterPage() {
         Already have an account?{" "}
         <Link
           href="/login"
-          className="text-brand-700 font-medium hover:underline"
+          className="text-brand-700 font-medium underline hover:text-brand-900 "
         >
           Sign in
         </Link>
