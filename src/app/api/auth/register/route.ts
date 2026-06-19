@@ -12,8 +12,7 @@ import { categories, users, wallets } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { registerSchema } from "@/lib/validations";
-import { registerRatelimit, getClientIp } from "@/lib/rate-limit";
-import { toast } from "sonner";
+import { registerRatelimit } from "@/lib/rate-limit";
 import { DEFAULT_CATEGORIES } from "@/lib/db/seed-categories";
 
 // Exporting a function named 'POST' makes this handle HTTP POST requests.
