@@ -17,10 +17,17 @@ import { Label } from "@/components/ui/label";
 import GoogleIcon from "@/components/icons/googleicon";
 import GithubIcon from "@/components/icons/githubicon";
 
+// REGISTER PROCESS FLOW (Frontend):
+// Step 1 → User visits /register and sees this form
+// Step 2 → User fills in name, email, password, confirmPassword
+// Step 3 → User clicks "Create Account"
 export default function RegisterPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Step 4 → React Hook Form validates the inputs on the client side
+  //           (quick check before even hitting the server)
+  //           (can be seen under the lib/validations.ts file)
   const {
     register,
     handleSubmit,
@@ -32,14 +39,16 @@ export default function RegisterPage() {
   async function onSubmit(data: RegisterInput) {
     setIsLoading(true);
 
+    // Step 5 → Form sends a POST request to /api/auth/register
+    //           (can be seen under the /api/auth/register/route.ts file)
     try {
-      // Call our register API route we built in Step 9
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
+      // Step 6 → Server responds with success or error
       const result = await res.json();
 
       if (!res.ok) {
@@ -57,7 +66,8 @@ export default function RegisterPage() {
         setIsLoading(false);
         return;
       }
-
+      // Step 7 → On success: show toast + redirect to /login
+      //           On error: show the error message under the form
       toast.success("Account created successfully.");
 
       // // Registration successful — automatically sign them in so they don't
