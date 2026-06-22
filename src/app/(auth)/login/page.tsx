@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 
 import GithubIcon from "@/components/icons/githubicon";
 import GoogleIcon from "@/components/icons/googleicon";
+import { toast } from "sonner";
 
 export default function LoginPage() {
   // useRouter lets us navigate programmatically (e.g., after login, go to /dashboard)
@@ -25,7 +26,6 @@ export default function LoginPage() {
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
 
   // Local state for the error message and loading spinner
-  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   // useForm gives us everything we need to manage the form.
@@ -39,35 +39,52 @@ export default function LoginPage() {
   });
 
   // This runs when the form is submitted AND all validation passes
-  const onSubmit = async (data: LoginInput) => {
+  async function onSubmit(data: LoginInput) {
     setIsLoading(true);
-    setError(null);
 
     // signIn() from next-auth handles the actual login request.
     // provider: "credentials" = email + password
     // redirect: false = don't redirect automatically, let us handle it
-    const result = await signIn("credentials", {
-      email: data.email,
-      password: data.password,
-      redirect: false,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
 
-    setIsLoading(false);
-
-    if (result?.error) {
-      // Map our custom error codes to human-readable messages
-      if (result.error === "TOO_MANY_ATTEMPTS") {
-        setError("Too many login attempts. Please wait 15 minutes.");
-      } else {
-        setError("Invalid email or password.");
+      if (result?.error) {
+        // Map our custom error codes to human-readable messages
+        if (result.error === "TOO_MANY_ATTEMPTS") {
+          toast.error("Too many login attempts. Please wait 15 minutes.");
+        } else {
+          toast.error("Invalid email or password. Please try again.");
+        }
+        return;
       }
-      return;
+      // Login successful — go to the page they originally wanted (or dashboard)
+      router.push(callbackUrl);
+      // refresh server components with the new session
+      router.refresh();
+      // show success message after redirecting (optional)
+      toast.success("Logged in successfully!");
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
+  }
 
-    // Login successful — go to the page they originally wanted (or dashboard)
-    router.push(callbackUrl);
-    router.refresh(); // refresh server components with the new session
-  };
+  async function handleOAuthLogin(provider: "google" | "github") {
+    setIsLoading(true);
+    try {
+      await signIn(provider, { callbackUrl });
+      // next-auth will handle the redirect, so we don't need to do anything else here
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   return (
     <main className="max-h-screen bg-card py-15 ">
@@ -125,7 +142,7 @@ export default function LoginPage() {
             <Button
               variant="ghost"
               size="xl"
-              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+              onClick={() => handleOAuthLogin("google")}
               className="cursor-pointer px-0 m-0 flex items-center justify-center"
             >
               <GoogleIcon className="size-12" />
@@ -134,7 +151,7 @@ export default function LoginPage() {
             <Button
               variant="ghost"
               size="xl"
-              onClick={() => signIn("github", { callbackUrl: "/dashboard" })}
+              onClick={() => handleOAuthLogin("github")}
               className="cursor-pointer p-2 flex items-center justify-center overflow-hidden"
             >
               <GithubIcon className="size-12" />

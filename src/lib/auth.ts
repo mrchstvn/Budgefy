@@ -39,34 +39,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         // STEP 1: Validate the data format with Zod.
         // Even before touching the database, make sure
         // the email looks like an email and password isn't empty.
-        const parsed = loginSchema.safeParse(credentials);
-        if (!parsed.success) return null;
+        const validated = loginSchema.safeParse(credentials);
+        if (!validated.success) return null;
 
-        const { email, password } = parsed.data;
+        const { email, password } = validated.data;
 
         // STEP 2: Look up the user in the database by email.
         // We convert email to lowercase to match how we stored it.
-        const user = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, email.toLowerCase()))
-          .limit(1) // Stop after finding the first match
-          .then((rows) => rows[0]); // Get the first row
+        const user = await db.query.users.findFirst({
+          where: eq(users.email, email.toLowerCase()),
+        });
 
         // STEP 3: If no user found with that email, reject.
         // We return null (not an error message) so attackers
         // can't tell whether the email exists or not.
-        if (!user) return null;
+        if (!user || !user.password) return null;
 
         // STEP 4: Check if the password matches.
         // bcrypt.compare() scrambles the typed password
         // the same way and checks if it matches the stored hash.
         // It NEVER unscrambles the hash.
-        const passwordMatches = await bcrypt.compare(
-          password,
-          user.passwordHash,
-        );
-        if (!passwordMatches) return null;
+        const passwordsMatch = await bcrypt.compare(password, user.password);
+        if (!passwordsMatch) return null;
 
         // STEP 5: Password is correct! Return user data.
         // This object gets stored in the session token.
@@ -74,7 +68,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           id: user.id,
           name: user.name,
           email: user.email,
-          currency: user.currency,
         };
       },
     }),
@@ -95,6 +88,51 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   // ── CALLBACKS ─────────────────────────────────────────────
   // Callbacks are functions that run at specific points in the auth flow.
   callbacks: {
+    async signIn({ user, account }) {
+      // For email/password, authorize() already handled everything
+      if (account?.type === "credentials") {
+        return true;
+      }
+
+      // For Google/GitHub — check if a user with this email
+      // already exists in OUR database
+      if (!user.email) {
+        return "/login?error=NoEmail";
+      }
+
+      try {
+        const existingUser = await db.query.users.findFirst({
+          where: eq(users.email, user.email.toLowerCase()),
+        });
+
+        if (existingUser) {
+          // Returning user OR merging with an existing
+          // email/password account — use the SAME id
+          user.id = existingUser.id;
+          return true;
+        }
+
+        // Brand new OAuth user — create their row ourselves
+        // to guarantee it happens (the adapter alone can be unreliable)
+        const [newUser] = await db
+          .insert(users)
+          .values({
+            id: user.id!,
+            name: user.name ?? null,
+            email: user.email.toLowerCase(),
+            image: user.image ?? null,
+            password: null,
+            emailVerified: new Date(),
+          })
+          .onConflictDoNothing()
+          .returning({ id: users.id });
+
+        return true;
+      } catch (error) {
+        console.error("[SIGN-IN ERROR]", error);
+        return false;
+      }
+    },
     // jwt() runs when CREATING or UPDATING the JWT token.
     // We add extra info (userId, currency) to the token here.
     // Without this, the token only has: name, email, picture.
