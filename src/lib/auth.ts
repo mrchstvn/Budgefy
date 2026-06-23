@@ -109,6 +109,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           // Returning user OR merging with an existing
           // email/password account — use the SAME id
           user.id = existingUser.id;
+          await db
+            .update(users)
+            .set({
+              name: user.name ?? null,
+              image: user.image ?? null,
+              emailVerified: existingUser.emailVerified ?? new Date(), // Don't overwrite existing emailVerified date
+            })
+            .where(eq(users.id, existingUser.id));
           return true;
         }
 
