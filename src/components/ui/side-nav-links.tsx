@@ -1,4 +1,4 @@
-'use client';
+"use client";
 // 'use client' is required because this component:
 // 1. Uses usePathname() — a hook that reads the current URL
 // 2. Has onClick event handlers (logout button)
@@ -6,50 +6,77 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from '@/lib/utils';
-import Image from 'next/image';
+import { cn } from "@/lib/utils";
+
+import {
+  LayoutDashboard,
+  ArrowLeftRight,
+  PieChart,
+  BadgeDollarSign,
+  BarChart3,
+  Settings,
+} from "lucide-react";
 const navLinks = [
-    { href: '/dashboard', label: 'Dashboard', icon: "/dashboard_icon.svg", exact: true },
-    { href: '/dashboard/transactions', label: 'Transactions', icon: "/transaction_icon.svg", exact: false },
-    { href: '/dashboard/budgets', label: 'Budgets', icon: "/budget_icon.svg", exact: false },
-    { href: '/dashboard/debts', label: 'Debt Tracker', icon: "/debt_icon.svg", exact: false },
-    { href: '/dashboard/reports', label: 'Reports', icon: "/reports_icon.svg", exact: false },
-    { href: '/dashboard/settings', label: 'Settings', icon: "/settings_icon.svg", exact: false },
+  {
+    href: "/dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    href: "/transactions",
+    label: "Transactions",
+    icon: ArrowLeftRight,
+  },
+  {
+    href: "/budget",
+    label: "Budget",
+    icon: PieChart,
+  },
+  {
+    href: "/debt-tracker",
+    label: "Debt Tracker",
+    icon: BadgeDollarSign,
+  },
+  {
+    href: "/reports",
+    label: "Reports",
+    icon: BarChart3,
+  },
+  {
+    href: "/settings",
+    label: "Settings",
+    icon: Settings,
+  },
 ];
 
 export default function SideNavLinks() {
-    const pathname = usePathname();
+  const pathname = usePathname();
 
-    return (
-        <>
-            {navLinks.map((link) => {
-                return (
-
-                    <Link
-                        key={link.label}
-                        href={link.href}
-                        className={cn(
-                            "flex h-full grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:h-20 md:flex-none md:justify-center md:px-2 lg:h-15 lg:justify-start lg:px-3",
-                            {
-                                "bg-sky-100 text-blue-600": pathname === link.href,
-                            },
-                        )}
-                    >
-                        <div className="md:flex md:flex-col md:items-center md:justify-center md:p-2 lg:flex-row lg:gap-2">
-                            <Image
-                                src={link.icon}
-                                alt={link.label}
-                                width={40}
-                                height={40}
-                                loading="eager"
-                            />
-
-                            <p className="hidden md:block md:text-sm lg:text-md">{link.label}</p>
-                        </div>
-                    </Link>
-                )
-            })
-            }
-        </>
-    )
+  return (
+    <>
+      {navLinks.map((navLink) => {
+        // isActive = true if we're currently on this page
+        const isActive =
+          pathname === navLink.href || pathname.startsWith(navLink.href + "/");
+        const Icon = navLink.icon;
+        return (
+          <Link
+            key={navLink.label}
+            href={navLink.href}
+            className={cn(
+              // Base styles for all nav items
+              "flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
+              // Active styles (dark green background)
+              isActive
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900",
+            )}
+          >
+            <Icon className="w-4 h-4 shrink-0" />
+            {navLink.label}
+          </Link>
+        );
+      })}
+    </>
+  );
 }

@@ -20,7 +20,13 @@ export default auth((req: NextRequest & { auth?: unknown }) => {
 
   // ── DEFINE WHICH ROUTES NEED PROTECTION ───────────────────
   // Protected routes: only logged-in users can access these.
-  const isProtectedRoute = pathname.startsWith("/dashboard");
+  const isProtectedRoute =
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/transactions") ||
+    pathname.startsWith("/budget") ||
+    pathname.startsWith("/debt-tracker") ||
+    pathname.startsWith("/reports") ||
+    pathname.startsWith("/settings");
 
   // Auth routes: only make sense if NOT logged in.
   const isAuthRoute =
