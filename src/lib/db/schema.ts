@@ -29,6 +29,7 @@ import { createId } from "@paralleldrive/cuid2"; // For generating unique IDs
 export const transactionTypeEnum = pgEnum("transaction_type", [
   "income",
   "expense",
+  "transfer",
 ]);
 
 // Debt type: you either OWE money (payable) or someone owes YOU (receivable)
@@ -252,7 +253,7 @@ export const transactions = pgTable("transactions", {
     onDelete: "set null",
   }),
 
-  // income or expense
+  // income or expense or transfer (money moved between wallets)
   type: transactionTypeEnum("type").notNull(),
 
   // The amount of money — 15 digits total, 2 decimal places

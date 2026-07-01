@@ -30,14 +30,16 @@ export default auth((req: NextRequest & { auth?: unknown }) => {
 
   // Auth routes: only make sense if NOT logged in.
   const isAuthRoute =
-    pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register");
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname === "/";
 
   // ── RULE 1: Not logged in + trying to go to dashboard ─────
   if (isProtectedRoute && !isLoggedIn) {
     // Build the login URL with the original destination saved.
     // Example: /auth/login?callbackUrl=/dashboard/transactions
     // After login, we redirect back to /dashboard/transactions.
-    const loginUrl = new URL("/auth/login", req.url);
+    const loginUrl = new URL("/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -64,6 +66,6 @@ export const config = {
     // - _next/image (image optimization)
     // - favicon.ico
     // - the home page ($) — public landing page
-    "/((?!api|_next/static|_next/image|favicon.ico|$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 };
